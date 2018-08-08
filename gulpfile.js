@@ -15,7 +15,7 @@ gulp.task('message', function () {
 
 // Optimize Images
 gulp.task('images', () =>
-    gulp.src('./src/images/**')
+    gulp.src('./src/img/**')
         // .pipe(imagemin(
         //     {
         //         interlaced: true,
@@ -24,7 +24,7 @@ gulp.task('images', () =>
         //         svgoPlugins: [{removeViewBox: true}]
         //     }
         // ))
-        .pipe(gulp.dest('./dist/images'))
+        .pipe(gulp.dest('./img'))
 );
 
 // Minify JS
@@ -69,7 +69,7 @@ gulp.task('serve', ['sass', 'scripts', 'images'], function () {
 
     gulp.watch('./src/sass/*.scss', ['sass']);
     gulp.watch('./src/js/*.js', ['scripts']);
-    gulp.watch('./src/images/*', ['images']);
+    gulp.watch('./src/img/*', ['images']);
     gulp.watch("./*.html").on('change', browserSync.reload);
 });
 
