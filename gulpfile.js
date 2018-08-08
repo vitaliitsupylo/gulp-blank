@@ -3,7 +3,6 @@
 const gulp = require('gulp'),
     sass = require('gulp-sass'),
     imagemin = require('gulp-imagemin'),
-    uglify = require('gulp-uglify'),
     concat = require('gulp-concat'),
     browserSync = require('browser-sync').create(),
     autoprefixer = require('gulp-autoprefixer'),
@@ -15,18 +14,25 @@ gulp.task('message', function () {
 });
 
 // Optimize Images
-gulp.task('imageMin', () =>
-    gulp.src('./src/images/*')
-        .pipe(imagemin())
+gulp.task('images', () =>
+    gulp.src('./src/images/**')
+        // .pipe(imagemin(
+        //     {
+        //         interlaced: true,
+        //         progressive: true,
+        //         optimizationLevel: 7,
+        //         svgoPlugins: [{removeViewBox: true}]
+        //     }
+        // ))
         .pipe(gulp.dest('./dist/images'))
 );
 
 // Minify JS
-gulp.task('minify', function () {
-    gulp.src('./src/js/*.js')
-        .pipe(uglify())
-        .pipe(gulp.dest('./dist/js'));
-});
+// gulp.task('minify', function () {
+//     gulp.src('./src/js/*.js')
+//         .pipe(uglify())
+//         .pipe(gulp.dest('./dist/js'));
+// });
 
 // Compile Sass
 gulp.task('sass', function () {
@@ -48,22 +54,14 @@ gulp.task('sass', function () {
 gulp.task('scripts', function () {
     gulp.src('./src/js/main.js')
         .pipe(concat('main.js'))
-        .pipe(uglify())
         .pipe(gulp.dest('./dist/js'))
         .pipe(browserSync.stream());
 });
 
-gulp.task('default', ['message', 'copyHtml', 'imageMin', 'sass', 'scripts']);
-
-gulp.task('watch', function () {
-    gulp.watch('src/js/*.js', ['scripts']);
-    gulp.watch('src/images/*', ['imageMin']);
-    gulp.watch('src/sass/*.scss', ['sass']);
-    gulp.watch('src/*.html', ['copyHtml']);
-});
+// gulp.task('default', ['message', 'copyHtml', 'imageMin', 'sass', 'scripts']);
 
 
-gulp.task('serve', ['sass'], function () {
+gulp.task('serve', ['sass', 'scripts', 'images'], function () {
 
     browserSync.init({
         server: "./"
@@ -71,6 +69,7 @@ gulp.task('serve', ['sass'], function () {
 
     gulp.watch('./src/sass/*.scss', ['sass']);
     gulp.watch('./src/js/*.js', ['scripts']);
+    gulp.watch('./src/images/*', ['images']);
     gulp.watch("./*.html").on('change', browserSync.reload);
 });
 
