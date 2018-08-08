@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "init": "npm i --dev",
+    "dev": "gulp serve",
+    "build": "cross-env NODE_ENV=production webpack"
   },
   "repository": {
     "type": "git",
@@ -23,7 +26,6 @@
     "gulp-concat": "^2.6.1",
     "gulp-css-unit": "^1.2.2",
     "gulp-imagemin": "^3.2.0",
-    "gulp-sass": "^4.0.1",
-    "gulp-uglify": "^2.1.2"
+    "gulp-sass": "^4.0.1"
   }
 }

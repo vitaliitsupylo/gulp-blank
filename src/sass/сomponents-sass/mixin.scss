@@ -1,0 +1,26 @@
+@mixin before_fig($wid,$hei,$bgc) {
+  content: "";
+  display: block;
+  position: absolute;
+  width: $wid;
+  height: $hei;
+  background-color: $bgc;
+}
+@mixin respond-to($media) {
+	@if index($devices, $media) {
+		@media only screen and (max-width: $break-tablet - 1) { @content; }
+	}
+	@else if $media == phones {
+		@media only screen and (max-width: $break-mobile - 1) { @content; }
+	}
+	@else if $media == tablets {
+		@media only screen and (min-width: $break-mobile) and (max-width: $break-tablet - 1) { @content; }
+	}
+	@else if $media == desktop {
+		@media only screen and (min-width: $break-tablet) { @content; }
+	}
+}
+
+@mixin media-to( $media-min, $media-max ) {
+	 @media only screen and (min-width: $media-min) and (max-width: $media-max) { @content; }
+}
