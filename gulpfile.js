@@ -2,75 +2,96 @@
 
 const gulp = require('gulp'),
     sass = require('gulp-sass'),
-    imagemin = require('gulp-imagemin'),
-    concat = require('gulp-concat'),
     browserSync = require('browser-sync').create(),
     autoprefixer = require('gulp-autoprefixer'),
-    cssunit = require('gulp-css-unit');
+    cssunit = require('gulp-css-unit'),
+    gutil = require("gulp-util"),
+    cleanCSS = require('gulp-clean-css'),
+    sourcemaps = require('gulp-sourcemaps'),
+    notifier = require('node-notifier'),
+    webpack = require("webpack");
 
-// Logs Message
-gulp.task('message', function () {
-    return console.log('Gulp is running...');
+const webpackConfig = require('./webpack.config.js');
+
+let statsLog = {
+    colors: true,
+    reasons: true
+};
+
+//webpack complete javascript
+gulp.task('scripts', (done) => {
+
+    webpack(webpackConfig, onComplete);
+
+    function onComplete(error, stats) {
+        if (error) {
+            onError(error);
+        } else if (stats.hasErrors()) {
+            onError(stats.toString(statsLog));
+        } else {
+            onSuccess(stats.toString(statsLog));
+        }
+    }
+
+    function onError(error) {
+        let formatedError = new gutil.PluginError('webpack', error);
+        notifier.notify({
+            title: `Error: ${formatedError.plugin}`,
+            message: formatedError.message
+        });
+        done(formatedError);
+    }
+
+    function onSuccess(detailInfo) {
+        gutil.log('[webpack]', detailInfo);
+        done();
+    }
+
 });
 
-// Optimize Images
-gulp.task('images', () =>
-    gulp.src('./src/img/**')
-        // .pipe(imagemin(
-        //     {
-        //         interlaced: true,
-        //         progressive: true,
-        //         optimizationLevel: 7,
-        //         svgoPlugins: [{removeViewBox: true}]
-        //     }
-        // ))
-        .pipe(gulp.dest('./img'))
-);
-
-// Minify JS
-// gulp.task('minify', function () {
-//     gulp.src('./src/js/*.js')
-//         .pipe(uglify())
-//         .pipe(gulp.dest('./dist/js'));
-// });
 
 // Compile Sass
-gulp.task('sass', function () {
+gulp.task('sass', () => {
     gulp.src('./src/sass/main.scss')
+        .pipe(sourcemaps.init({loadMaps: true}))
         .pipe(sass().on('error', sass.logError))
-        .pipe(autoprefixer({
-            browsers: ['> 5%'],
-            cascade: false
-        }))
         .pipe(cssunit({
             type: 'px-to-rem',
             rootSize: 16
         }))
+        .pipe(sourcemaps.write('./'))
+        .pipe(gulp.dest('./dist/css/'))
+});
+
+// Compile min Sass
+gulp.task('sassMin', () => {
+    gulp.src('./src/sass/main.scss')
+        .pipe(sass().on('error', sass.logError))
+        .pipe(cssunit({
+            type: 'px-to-rem',
+            rootSize: 16
+        }))
+        .pipe(autoprefixer())
+        .pipe(cleanCSS({compatibility: 'ie11'}))
         .pipe(gulp.dest('./dist/css'))
-        .pipe(browserSync.stream());
 });
 
-// Scripts
-gulp.task('scripts', function () {
-    gulp.src('./src/js/main.js')
-        .pipe(concat('main.js'))
-        .pipe(gulp.dest('./dist/js'))
-        .pipe(browserSync.stream());
-});
 
-// gulp.task('default', ['message', 'copyHtml', 'imageMin', 'sass', 'scripts']);
-
-
-gulp.task('serve', ['sass', 'scripts', 'images'], function () {
+gulp.task('default', ['scripts', 'sass'], () => {
 
     browserSync.init({
         server: "./"
     });
 
-    gulp.watch('./src/sass/*.scss', ['sass']);
-    gulp.watch('./src/js/*.js', ['scripts']);
-    gulp.watch('./src/img/*', ['images']);
+    gulp.watch('./src/sass/*.scss', ['sass']).on('change', browserSync.reload);
+    gulp.watch('./src/js/**', ['scripts']).on('change', browserSync.reload);
     gulp.watch("./*.html").on('change', browserSync.reload);
 });
 
-gulp.task('default', ['serve']);
+gulp.task('host', ['scripts', 'sass'], () => {
+    gulp.watch('./src/sass/*.scss', ['sass']);
+    gulp.watch('./src/js/**', ['scripts']);
+});
+
+gulp.task('build', ['scripts', 'sassMin']);
+
