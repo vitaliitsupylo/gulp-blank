@@ -1,4 +1,4 @@
-@mixin before_fig($wid,$hei,$bgc) {
+@mixin before($wid,$hei,$bgc) {
   content: "";
   display: block;
   position: absolute;
@@ -6,21 +6,29 @@
   height: $hei;
   background-color: $bgc;
 }
-@mixin respond-to($media) {
-	@if index($devices, $media) {
-		@media only screen and (max-width: $break-tablet - 1) { @content; }
-	}
-	@else if $media == phones {
-		@media only screen and (max-width: $break-mobile - 1) { @content; }
-	}
-	@else if $media == tablets {
-		@media only screen and (min-width: $break-mobile) and (max-width: $break-tablet - 1) { @content; }
-	}
-	@else if $media == desktop {
-		@media only screen and (min-width: $break-tablet) { @content; }
-	}
+
+@mixin respondTo($media) {
+  @if index($devices, $media) {
+    @media only screen and (max-width: $breakTablet - 1) {
+      @content;
+    }
+  } @else if $media == phones {
+    @media only screen and (max-width: $breakMobile - 1) {
+      @content;
+    }
+  } @else if $media == tablets {
+    @media only screen and (min-width: $breakMobile) and (max-width: $breakTablet - 1) {
+      @content;
+    }
+  } @else if $media == desktop {
+    @media only screen and (min-width: $breakTablet) {
+      @content;
+    }
+  }
 }
 
-@mixin media-to( $media-min, $media-max ) {
-	 @media only screen and (min-width: $media-min) and (max-width: $media-max) { @content; }
+@mixin mediaTo( $mediaMin, $mediaMax ) {
+  @media only screen and (min-width: $mediaMin) and (max-width: $mediaMax) {
+    @content;
+  }
 }
